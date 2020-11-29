@@ -1,9 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>eHello World</title>
+<meta charset="ISO-8859-1">
+<title> Lyric Displayer</title>
+
+<script type="text/javascript" src="http://tracking.musixmatch.com/t1.0/AMa6hJCIEzn1v8RuOP"> </script>
+<script>
+var track_id = {};
+
+function setTrack_ID(index){
+	return track_id[index];
+}
+var request = new XMLHttpRequest();
+request.onreadystatechange = function() {
+	
+	    if (this.readyState == 4 && this.status == 200) {
+	    	var obj = JSON.parse(request.responseText);
+		   for(var x = 0; x<obj.message.body.track_list.length; x++){
+			   var div = document.createElement("option");
+			   div.innerHTML = obj.message.body.track_list[x].track.track_name;
+			   document.getElementById("songChooser").appendChild(div);
+			   track_id[x+1] = obj.message.body.track_list[x].track.track_id;
+	   }
+    }
+};
+
+request.open("GET","https://api.musixmatch.com/ws/1.1/chart.tracks.get?chart_name=top&page=1&page_size=100&f_has_lyrics=1&apikey=9d44a257585e88dbe812128e6da01d60");
+//request.setRequestHeader("Content-type", "text/index.html");
+request.setRequestHeader("Access-Control-Allow-Origin","https://hisui45.github.io/coursera-test/");
+request.setRequestHeader("Access-Control-Allow-Methods", "GET");
+request.setRequestHeader("Access-Control-Allow-Headers", "Origin");
+request.send();
+
+function showLyrics() {
+	var chooser = document.getElementById("songChooser").selectedIndex;
+	var trackid = setTrack_ID(chooser);
+	var requestLyrics = new XMLHttpRequest();
+	requestLyrics.onreadystatechange = function() {
+		var obj = JSON.parse(requestLyrics.responseText);
+		var text = JSON.stringify(obj);
+		document.getElementById("lyrics").innerHTML = obj.message.body.lyrics.lyrics_body;
+	}
+
+requestLyrics.open("GET","https://api.musixmatch.com/ws/1.1/track.lyrics.get?track_id="+trackid+"&apikey=9d44a257585e88dbe812128e6da01d60");
+//requestLyrics.setRequestHeader("Content-type", "text/index.html");
+requestLyrics.setRequestHeader("Access-Control-Allow-Origin","https://hisui45.github.io/coursera-test/");
+requestLyrics.setRequestHeader("Access-Control-Allow-Methods", "GET");
+requestLyrics.setRequestHeader("Access-Control-Allow-Headers", "Origin");
+requestLyrics.send()
+	}
+
+</script>
 </head>
 <body>
-<h1> Hello World supercalifragilicios <h1>
+
+<h1 id= "header">Lyric Displayer</h1>
+
+<div id = "commoner">
+	<form onchange="showLyrics()" > 
+	
+		<label> Choose a song: </label>
+		<select id = "songChooser">
+			<option>  </option>
+			
+		</select>
+		
+	</form>
+</div>
+
+<div id = "common">  </div>
+<p id= "lyrics"> </p>
+
 </body>
 </html>
